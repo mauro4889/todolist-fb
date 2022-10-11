@@ -31,7 +31,31 @@ export const createUserProfile = async userAutenticated => { //userAutenticated 
     return snapshot
 }
 
+export const createTaskDocuments = async task => {
+    const taskReference = doc(db, `tasks/user/${task.user}/${task.id}`)
+    const snapshot = await getDoc(taskReference)
 
+    if(!taskReference.exists()){
+        try {
+            await setDoc(taskReference, {
+                ...task,
+                createTaskDate: new Date()
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    return snapshot
+}
+
+export const getFirebaseTasks = async taskid => {
+    const PATH = `tasks/user/${taskid}`
+
+    const collectionReference = collection(db, PATH)
+    const {docs} = await getDocs(collectionReference)
+    return docs.map(snapshot => snapshot.data()) //se pasa a JSON las colleciones traidas de firebase
+}
+//FIN FIRESTORE
 
 //Crear usuario
 export const createUser = async (email, password, name) => {
